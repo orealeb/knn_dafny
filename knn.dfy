@@ -37,9 +37,6 @@ class kNN {
  ensures numCols == cols;
  //make sure initializes kVal from user input
  ensures kVal == k;
- // ensures trainSamples && trainSamples are newly created object.
- //ensures fresh(trainSamples);
- //ensures fresh(testSamples);
  //ensure row and column length same as user input
  ensures numRows == trainSamples.Length0 && numRows == testSamples.Length0 && numRows == trainClasses.Length;
  ensures numCols == trainSamples.Length1 && numCols == testSamples.Length1; 
@@ -47,8 +44,8 @@ class kNN {
   numRows := rows;
   numCols := cols;
   trainClasses := trainclasses;
-  trainSamples := trainsamples;//new int[numRows, numCols];
-  testSamples := testsamples;//new int[numRows, numCols];
+  trainSamples := trainsamples;
+  testSamples := testsamples;
   assert numRows == trainSamples.Length0 && numRows == testSamples.Length0;
   assert numCols == trainSamples.Length1 && numCols == testSamples.Length1;
   kVal := k;
@@ -261,8 +258,6 @@ class kNN {
  ensures len0 >= 1 && len1 >= 1;
  ensures len0 == res.Length0;
  ensures len1 == res.Length1;
- //dafny nested quantifier incompleteness
- //ensures forall k : nat :: k < arr.len0 && forall j : nat :: j < arr.len1 ==> arr[k,j] == res[k,j]; 
  {
   res := new real[len0, len1];
   var i := 0;
@@ -415,10 +410,7 @@ class kNN {
  ensures res.Length0 >= 1;
  ensures res.Length0 == a.Length0;
  ensures res.Length1 == a.Length1;
- //ensures forall k : nat :: k < res.Length0 ==> res[k,1].Trunc <= res.Length0; 
  {
-  //res := arrayCopy(a, a.Length0, a.Length1);
-
   //create copy of arr to res
   res := new real[a.Length0, a.Length1];
   //initialize res array to 0.0
@@ -474,7 +466,6 @@ class kNN {
   assert res.Length0 == a.Length0;
   assert res.Length1 == a.Length1;
 
-
   //if (res.Length0 == 0) { return; } //remove because requires Length0 >= 1
   i := 0;
   while (i < res.Length0)
@@ -483,9 +474,7 @@ class kNN {
   invariant a.Length1 == res.Length1;
   invariant forall j::0 <= j < i <= res.Length0 ==> res[0, 0] <= res[j, 0];
   invariant forall k: nat::k < i && res[k, 0] < res[0, 0] && res[0, 1].Trunc <= res.Length0 ==> res[k, 1].Trunc <= res.Length0;
-  //invariant forall j :: 0 <= j < i < res.Length0 ==> res[i,1].Trunc <= res.Length0;
   invariant forall k: nat::k < i ==> a[k, 1].Trunc <= res.Length0;
-  //invariant forall k : nat :: k < i ==> res[k,1].Trunc <= res.Length0;
   decreases res.Length0 - i; {
    if (res[i, 0] < res[0, 0]) {
     res[0, 0], res[i, 0] := res[i, 0], res[0, 0];
@@ -501,7 +490,6 @@ class kNN {
   invariant sorted(res, 0, i);
   invariant forall j::0 <= j < res.Length0 ==> res[0, 0] <= res[j, 0];
   invariant forall k: nat::k < i && res[k, 0] < res[0, 0] && res[0, 1].Trunc <= res.Length0 ==> res[k, 1].Trunc <= res.Length0;
-  //invariant forall j :: 0 <= j < res.Length0 ==> res[j,1].Trunc <= res.Length0;
   decreases res.Length0 - i; {
    var j: int := i;
    var v: real := res[i, 0];
@@ -515,9 +503,7 @@ class kNN {
    invariant sorted(res, j, i + 1);
    invariant forall k::0 <= k < a.Length0 ==> res[0, 0] <= res[k, 0];
    invariant forall k::j <= k <= i ==> v <= res[k, 0];
-   //invariant forall k : nat :: k < i && res[k,0] < res[0,0] && res[0,1].Trunc <= res.Length0 ==> res[k,1].Trunc <= res.Length0;
    invariant forall k: nat::0 < k < j < i && res[i, 0] < res[k, 0] && res[k, 1].Trunc <= res.Length0 ==> res[i, 1].Trunc <= res.Length0;
-   //invariant forall j, k :: 0 <= 0 <= j < k < i <= res.Length0 ==> res[k,1].Trunc <= res.Length0;
    invariant sorted(res, 0, i); {
     res[j, 0] := res[j - 1, 0];
     res[j, 1] := res[j - 1, 1];
@@ -533,7 +519,6 @@ class kNN {
  /**
   ** adapted from Yonatan Biri- Selection Sort verification http://rise4fun.com/Dafny/OB
   **/
-
  method SelectionSort(arr: array2 < real > ) returns(res: array2 < real > )
  requires arr != null;
  requires arr.Length1 == 2;
@@ -699,41 +684,4 @@ class kNN {
   assert forall k::i <= k < arr.Length0 ==> arr[k, 0] >= arr[iMin, 0];
   assert MinIndex(arr, iMin);
  }
-
-}
-
-method	Main()
-{
-  var testCase1 := new kNN;
-  
-  //CASE 1 - 2 ROWS 2 COLUMNS WITH INPUT DATA 
-  // EXPECTED OUTPUT SHOULD BE EITHER 0 OR 1
-  var trainClasses := new int[2];
-  trainClasses[0] := 0;
-  trainClasses[1] := 1;
-  
-  var trainSamples := new int[2,2];
-  trainSamples[0,0] := 1;
-  trainSamples[0,1] := 0;
-  trainSamples[1,0] := 0;
-  trainSamples[1,1] := 1;
-  
-  var testSamples := new int[2,2];
-  testSamples[0,0] := 1;
-  testSamples[0,1] := 0;
-  testSamples[1,0] := 0;
-  testSamples[1,1] := 1;
-  
-  assert trainSamples.Length0 == testSamples.Length0;
-  assert trainSamples.Length1 == testSamples.Length1;
-  testCase1.Init(2, 2, 2, trainClasses, trainSamples,testSamples);
-  
-  var result := testCase1.classify();
-  
-  //assert result[0] == -1 || result[0]>= 0;
-  
-  
-  
-  
-  
 }
