@@ -399,6 +399,12 @@ class kNN {
   forall j, k::0 <= lo <= j < k < hi <= a.Length0 ==> a[j, 0] <= a[k, 0]
  }
 
+ /** 
+  ** sort(..) - sort 2d array based on row as sort-key
+  ** creates a new copy of sorted array and returns it 
+  ** a: array<real> - array to be sorted with key (distance in kNN alg) i.e a[key,index]
+  ** res: array2 < real > - sorted array
+  **/
  method sort(a: array2 < real > ) returns(res: array2 < real > )
  requires a != null;
  requires a.Length0 >= 1;
